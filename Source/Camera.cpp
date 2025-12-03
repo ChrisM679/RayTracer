@@ -5,10 +5,8 @@
 void Camera::SetView(const glm::vec3& eye, const glm::vec3& target, const glm::vec3& up) {
 	this->eye = eye;
 
-	forward = glm::normalize(target - eye);
-
-	right = glm::normalize(glm::cross(forward, up));
-
+	this->forward = glm::normalize(target - eye);
+	this->right = glm::normalize(glm::cross(forward, up));
 	this->up = glm::normalize(glm::cross(right, forward));
 	
 	CalculateViewPlane();
@@ -19,9 +17,7 @@ ray_t Camera::GetRay(const glm::vec2& uv) const {
 
 	ray.origin = eye;
 
-
 	glm::vec3 point = lowerLeft + uv.x * horizontal + uv.y * vertical;
-
 	ray.direction = glm::normalize(point - eye);
 	
 	return ray;
@@ -30,12 +26,12 @@ ray_t Camera::GetRay(const glm::vec2& uv) const {
 void Camera::CalculateViewPlane() {
 	float theta = glm::radians(fov);
 
-	float halfHeight = tan(theta / 2.0f);
+	float halfHeight = tan(theta * 0.5f);
 	float halfWidth = aspectRatio * halfHeight;
 
-	horizontal = right * (2.0f * halfWidth);
-	vertical = up * (2.0f * halfHeight);
+	horizontal = right * (halfWidth * 2.0f);
+	vertical = up * (halfHeight * 2.0f);
 
-	lowerLeft = eye + forward - (right * halfHeight) - (up * halfWidth);
+	lowerLeft = eye + forward - (halfHeight * 0.5f) - (halfWidth * 0.5f);
 }
 
