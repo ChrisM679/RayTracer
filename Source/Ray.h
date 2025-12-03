@@ -1,14 +1,14 @@
 #pragma once
 #include <glm/glm.hpp>
 
-struct Ray
+struct ray_t
 {
     glm::vec3 origin;
     glm::vec3 direction;
 
-    Ray() = default;
+    ray_t() = default;
 
-    Ray(glm::vec3& origin, glm::vec3& direction)
+    ray_t(glm::vec3& origin, glm::vec3& direction)
         : origin(origin), direction(direction) {
     }
 
