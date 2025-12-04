@@ -1,6 +1,7 @@
 #include "Renderer.h"
 #include "Framebuffer.h"
 #include "Camera.h"
+#include "Scene.h"
 
 #include <iostream>
 
@@ -17,6 +18,8 @@ int main() {
 	float aspectRatio = (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT;
 	Camera camera(70.0f, aspectRatio);
 	camera.SetView({ 0, 0, 5 }, { 0, 0, 0 });
+
+	Scene scene;
 
 	SDL_Event event;
 	bool quit = false;
@@ -35,6 +38,7 @@ int main() {
 		framebuffer.Clear({ 0, 0, 0, 255 });
 		for (int i = 0; i < 300; i++) framebuffer.DrawPoint(rand() % SCREEN_WIDTH, rand() % SCREEN_HEIGHT, { 255, 255, 255, 255 });
 
+		scene.Render(framebuffer, camera);
 		framebuffer.Update();
 
 		renderer.CopyFramebuffer(framebuffer);
