@@ -2,31 +2,53 @@
 #include "Framebuffer.h"
 #include "Camera.h"
 #include "Color.h"
+#include "Object.h" 
 #include <iostream>
 
 void Scene::Render(Framebuffer& framebuffer, const Camera& camera) {
 	for (int y = 0; y < framebuffer.height; y++) {
-		for (int x = 0; x < framebuffer.width; x++)	{
+		for (int x = 0; x < framebuffer.width; x++) {
 
-			glm::vec2 pixel = glm::vec2{ x,y }; 
-			glm::vec2 point = pixel / glm::vec2{ framebuffer.width, framebuffer.height }; 
+			glm::vec2 pixel = glm::vec2{ x,y };
+			glm::vec2 point = pixel / glm::vec2{ framebuffer.width, framebuffer.height };
 
 			point.y = 1.0f - point.y;
 
 			ray_t ray = camera.GetRay(point);
-			color3_t color = Trace(ray);
+
+			color3_t color = Trace(ray, 0.0f, 100.0f);
 
 			framebuffer.DrawPoint(x, y, ColorConvert(color));
 		}
 	}
 }
 
-color3_t Scene::Trace(const ray_t& ray) {
+void Scene::AddObject(std::unique_ptr<Object> object) {
+	objects.push_back(std::move(object));
+}
+
+color3_t Scene::Trace(const ray_t& ray, float minDistance, float maxDistance) {
+
+	raycastHit_t raycastHit;
+
+	bool rayHit = false;
+	float closestDistance = maxDistance;
+
+	for (auto& object : objects) {
+
+		if (object->Hit(ray, minDistance, closestDistance, raycastHit)) {
+			rayHit = true;
+			closestDistance = raycastHit.distance;
+		}
+	}
+
+	if (rayHit) {
+		return raycastHit.color;
+	}
+
 	glm::vec3 direction = glm::normalize(ray.direction);
-
 	float t = (direction.y + 1.0f) * 0.5f;
-	
-	color3_t color = glm::mix(skyBottom, skyTop, t);
 
+	color3_t color = glm::mix(skyBottom, skyTop, t);
 	return color;
 }

@@ -2,6 +2,9 @@
 #include "Framebuffer.h"
 #include "Camera.h"
 #include "Scene.h"
+#include "Sphere.h"
+#include "Object.h"
+#include "Random.h"
 
 #include <iostream>
 
@@ -20,6 +23,28 @@ int main() {
 	camera.SetView({ 0, 0, 5 }, { 0, 0, 0 });
 
 	Scene scene;
+
+	scene.AddObject(std::make_unique<Sphere>(
+		glm::vec3{ 0, 0, 0 },
+		1.5f,
+		color3_t{ 1, 0, 0 }
+	));
+
+	for (int i = 0; i < 5; i++) {
+		glm::vec3 pos{
+			random::getReal(-3.0f, 3.0f),
+			random::getReal(-3.0f, 3.0f),
+			random::getReal(-3.0f, 3.0f)
+		};
+
+		color3_t col{
+			random::getReal(0.0f, 1.0f),
+			random::getReal(0.0f, 1.0f),
+			random::getReal(0.0f, 1.0f)
+		};
+
+		scene.AddObject(std::make_unique<Sphere>(pos, 1.0f, col));
+	}
 
 	SDL_Event event;
 	bool quit = false;
