@@ -32,6 +32,6 @@ void Camera::CalculateViewPlane() {
 	horizontal = right * (halfWidth * 2.0f);
 	vertical = up * (halfHeight * 2.0f);
 
-	lowerLeft = eye + forward - (halfHeight * 0.5f) - (halfWidth * 0.5f);
+	lowerLeft = eye + forward - (horizontal * 0.5f) - (vertical * 0.5f);
 }
 

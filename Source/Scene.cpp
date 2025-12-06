@@ -2,26 +2,41 @@
 #include "Framebuffer.h"
 #include "Camera.h"
 #include "Color.h"
-#include "Object.h" 
+#include "Object.h"
+#include "Random.h"
 #include <iostream>
 
-void Scene::Render(Framebuffer& framebuffer, const Camera& camera) {
-	for (int y = 0; y < framebuffer.height; y++) {
-		for (int x = 0; x < framebuffer.width; x++) {
+void Scene::Render(Framebuffer& framebuffer, const Camera& camera, int numSamples) {
+    for (int y = 0; y < framebuffer.height; y++) {
+        for (int x = 0; x < framebuffer.width; x++) {
 
-			glm::vec2 pixel = glm::vec2{ x,y };
-			glm::vec2 point = pixel / glm::vec2{ framebuffer.width, framebuffer.height };
+            color3_t color = color3_t{ 0.0f };
 
-			point.y = 1.0f - point.y;
+            for (int i = 0; i < numSamples; i++) {
 
-			ray_t ray = camera.GetRay(point);
+                glm::vec2 pixel{ x, y };
 
-			color3_t color = Trace(ray, 0.0f, 100.0f);
+                pixel += glm::vec2{
+                    random::getReal<float>(),
+                    random::getReal<float>()
+                };
 
-			framebuffer.DrawPoint(x, y, ColorConvert(color));
-		}
-	}
+                glm::vec2 point = pixel / glm::vec2{ framebuffer.width, framebuffer.height };
+
+                point.y = 1.0f - point.y;
+
+                ray_t ray = camera.GetRay(point);
+
+                color += Trace(ray, 0.0f, 100.0f);
+            }
+
+            color /= (float)numSamples;
+
+            framebuffer.DrawPoint(x, y, ColorConvert(color));
+        }
+    }
 }
+
 
 void Scene::AddObject(std::unique_ptr<Object> object) {
 	objects.push_back(std::move(object));
