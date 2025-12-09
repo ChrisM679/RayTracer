@@ -6,64 +6,71 @@
 #include "Random.h"
 #include <iostream>
 
-void Scene::Render(Framebuffer& framebuffer, const Camera& camera, int numSamples) {
-    for (int y = 0; y < framebuffer.height; y++) {
-        for (int x = 0; x < framebuffer.width; x++) {
+void Scene::Render(Framebuffer& framebuffer, const Camera& camera, int numSamples)
+{
+    for (int y = 0; y < framebuffer.height; y++)
+    {
+        for (int x = 0; x < framebuffer.width; x++)
+        {
+            color3_t pixelColor{ 0.0f };
 
-            color3_t color = color3_t{ 0.0f };
+            for (int i = 0; i < numSamples; i++)
+            {
+                glm::vec2 pixel = glm::vec2(x, y);
+                pixel += glm::vec2(random::getReal<float>(), random::getReal<float>());
 
-            for (int i = 0; i < numSamples; i++) {
+                glm::vec2 uv = pixel / glm::vec2(framebuffer.width, framebuffer.height);
+                uv.y = 1.0f - uv.y;
 
-                glm::vec2 pixel{ x, y };
+                ray_t ray = camera.GetRay(uv);
 
-                pixel += glm::vec2{
-                    random::getReal<float>(),
-                    random::getReal<float>()
-                };
-
-                glm::vec2 point = pixel / glm::vec2{ framebuffer.width, framebuffer.height };
-
-                point.y = 1.0f - point.y;
-
-                ray_t ray = camera.GetRay(point);
-
-                color += Trace(ray, 0.0f, 100.0f);
+                pixelColor += Trace(ray, 0.0001f, 100.0f, 20);
             }
 
-            color /= (float)numSamples;
+            pixelColor /= (float)numSamples;
 
-            framebuffer.DrawPoint(x, y, ColorConvert(color));
+            pixelColor = glm::sqrt(pixelColor);
+
+            framebuffer.DrawPoint(x, y, ColorConvert(pixelColor));
         }
     }
 }
-
 
 void Scene::AddObject(std::unique_ptr<Object> object) {
 	objects.push_back(std::move(object));
 }
 
-color3_t Scene::Trace(const ray_t& ray, float minDistance, float maxDistance) {
+color3_t Scene::Trace(const ray_t& ray, float minDistance, float maxDistance, int maxDepth)
+{
+    if (maxDepth <= 0) {
+        return color3_t{ 0.0f };
+    }
 
-	raycastHit_t raycastHit;
+    raycastHit_t hit;
+    bool rayHit = false;
+    float closestDistance = maxDistance;
 
-	bool rayHit = false;
-	float closestDistance = maxDistance;
+    for (auto& object : objects) {
+        raycastHit_t tempHit;
+        if (object->Hit(ray, minDistance, closestDistance, tempHit)) {
+            rayHit = true;
+            closestDistance = tempHit.distance;
+            hit = tempHit;
+        }
+    }
 
-	for (auto& object : objects) {
+    if (rayHit) {
+        color3_t attenuation;
+        ray_t scattered;
 
-		if (object->Hit(ray, minDistance, closestDistance, raycastHit)) {
-			rayHit = true;
-			closestDistance = raycastHit.distance;
-		}
-	}
+        if (hit.material->Scatter(ray, hit, attenuation, scattered)) {
+            return attenuation * Trace(scattered, minDistance, maxDistance, maxDepth - 1);
+        }
+        else {
+            return hit.material->GetEmissive();
+        }
+    }
 
-	if (rayHit) {
-		return raycastHit.color;
-	}
-
-	glm::vec3 direction = glm::normalize(ray.direction);
-	float t = (direction.y + 1.0f) * 0.5f;
-
-	color3_t color = glm::mix(skyBottom, skyTop, t);
-	return color;
+    float t = 0.5f * (ray.direction.y + 1.0f);
+    return (1.0f - t) * skyBottom + t * skyTop;
 }

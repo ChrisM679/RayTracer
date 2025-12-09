@@ -1,14 +1,22 @@
 #pragma once
 #include "Ray.h"
+#include "Color.h"
+#include "Material.h"
+#include "Transform.h"
+#include <memory>
 
 class Object
 {
-    public:
-        Object() = default;
-        Object(const color3_t& color) : color(color) {}
+public:
+    Object() = default;
 
-        virtual bool Hit(const ray_t& ray, float minDistance, float maxDistance, raycastHit_t& raycastHit) = 0;
+    Object(const Transform& transform, std::shared_ptr<Material> material)
+        : transform(transform), material(material) {
+    }
 
-    protected:
-        color3_t color;
+    virtual bool Hit(const ray_t& ray, float minDistance, float maxDistance, raycastHit_t& raycastHit) = 0;
+
+protected:
+    Transform transform;
+    std::shared_ptr<Material> material;
 };

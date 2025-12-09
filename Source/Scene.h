@@ -1,5 +1,8 @@
 #pragma once
 #include "Color.h"
+#include "Ray.h"
+#include "Object.h"
+#include "Material.h"
 #include <vector>
 #include <memory>
 
@@ -23,7 +26,7 @@ public:
 
 private:
 
-    color3_t Trace(const ray_t& ray, float minDistance, float maxDistance);
+    color3_t Trace(const ray_t& ray, float minDistance, float maxDistance, int maxDepth = 5);
 
 private:
     color3_t skyBottom{ 1 };
