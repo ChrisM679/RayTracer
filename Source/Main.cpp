@@ -3,6 +3,7 @@
 #include "Renderer.h"
 #include "Framebuffer.h"
 #include "Camera.h"
+#include "Plane.h"
 #include "Scene.h"
 #include "Sphere.h"
 #include "Random.h"
@@ -25,17 +26,6 @@ int main() {
 	camera.SetView({ 0, 2, 5 }, { 0, 0, 0 });
 
 	Scene scene;
-	
-	/*
-	auto sphere1 = std::make_unique<Sphere>(glm::vec3{ 0, 0, 0 }, 1.0f, color3_t{ 1, 0, 0 });
-	scene.AddObject(std::move(sphere1));
-
-	for (int i = 0; i < 5; i++) {
-		glm::vec3 position = random::getReal(glm::vec3{ -3.0f }, glm::vec3{ 3.0f });
-		auto sphere = std::make_unique<Sphere>(position, 1.0f, color3_t{ 1, 0, 0 });
-		scene.AddObject(std::move(sphere));
-	}
-	*/
 
 	auto red = std::make_shared<Lambertian>(color3_t{ 1.0f, 0.0f, 0.0f });
 	auto green = std::make_shared<Lambertian>(color3_t{ 0.0f, 1.0f, 0.0f });
@@ -50,6 +40,10 @@ int main() {
 		std::unique_ptr<Object> sphere = std::make_unique<Sphere>(Transform{ position }, random::getReal(0.2f, 1.0f), materials[random::getInt(4)]);
 		scene.AddObject(std::move(sphere));
 	}
+
+	auto gray = std::make_shared<Lambertian>(color3_t{ 0.2f, 0.2f, 0.2f });
+	std::unique_ptr<Plane> plane = std::make_unique<Plane>(Transform{ glm::vec3{ 0.0f, 0.0f, 0.0f } }, gray);
+	scene.AddObject(std::move(plane));
 
 	SDL_Event event;
 	bool quit = false;

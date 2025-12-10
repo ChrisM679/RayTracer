@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <glm/gtc/color_space.hpp>
 
-// use alias to clarify type name
 using color3_t = glm::vec3;
 using color4_t = glm::vec4;
 
@@ -22,7 +21,6 @@ inline color3_t HSVtoRGB(float hue, float saturation, float value) {
 }
 */
 
-// convert from RGBA(0.0 - 1.0) color to (0 - 255) color
 inline SDL_Color ColorConvert(const color4_t& color4)
 {
 	SDL_Color color;
@@ -35,7 +33,6 @@ inline SDL_Color ColorConvert(const color4_t& color4)
 	return color;
 }
 
-// convert from RGB(0.0 - 1.0) color to (0 - 255) color
 inline SDL_Color ColorConvert(const color3_t& color3)
 {
 	SDL_Color color;
@@ -48,7 +45,6 @@ inline SDL_Color ColorConvert(const color3_t& color3)
 	return color;
 }
 
-// convert from (0 - 255) color to RGBA(0.0 - 1.0) color
 inline color4_t ColorConvert(const SDL_Color& color)
 {
 	color4_t color4;
