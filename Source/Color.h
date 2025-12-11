@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <algorithm>
 #include <glm/gtc/color_space.hpp>
+#include <glm/gtx/color_space.hpp>
 
 using color3_t = glm::vec3;
 using color4_t = glm::vec4;
@@ -11,15 +12,16 @@ using color4_t = glm::vec4;
 inline float LinearToGamma(float linear) {
 	return (linear > 0) ? std::sqrt(linear) : 0;
 }
-/*
-inline color3_t HSVtoRGB(const color3_t& hsv) {
+
+inline color3_t HSVtoRGB(const glm::vec3& hsv)
+{
 	return glm::rgbColor(hsv);
 }
 
-inline color3_t HSVtoRGB(float hue, float saturation, float value) {
+inline color3_t HSVtoRGB(float hue, float saturation, float value)
+{
 	return glm::rgbColor(glm::vec3{ hue, saturation, value });
 }
-*/
 
 inline SDL_Color ColorConvert(const color4_t& color4)
 {
